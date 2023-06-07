@@ -1,0 +1,63 @@
+  private Rigidbody2D rb;
+    private Animator amin;
+
+    public float minJumpForce = 5f;   // lực nhảy tối thiếu
+    public float maxJumpForce = 12f;   // lực nhảy tối đa
+    public float minWaiTime = 1f;     // thời gian nhảy tối thiếu
+    public float maxWaiTime = 1f;     // thời gian nhảy tối đa
+    public float jumTimer;              // bộ đếm thời gian
+    private bool canJump;               // có thể nhảy
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        amin = GetComponent<Animator>();
+    }
+    // Start is called before the first frame update
+    void Start()
+    {
+        this.CheckStar();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        this.HandleJum();
+        this.HandleAnimator();
+    }
+    private void CheckStar()
+    {
+        jumTimer = Time.time + Random.Range(minJumpForce, maxJumpForce);
+    }
+    private void HandleJum()  // xử lý khi nhảy
+    {
+        if(Time.time > jumTimer)
+        {
+            jumTimer = Time.time + Random.Range(minWaiTime, maxWaiTime);
+            this.Jump();
+        }
+        if (rb.velocity.magnitude == 0)
+        {
+            canJump = true;
+        }
+    }
+    private void Jump()
+    {
+        if (canJump)
+        {
+            Music.instance.SpiderAatackSound(); // nhạc
+            canJump = false;
+            rb.velocity = new Vector2(0f, Random.Range(minJumpForce, maxJumpForce));  
+        }
+        
+    }
+    private void HandleAnimator()  // xử lý chuyển động
+    {
+        if(rb.velocity.magnitude == 0)
+        {
+         amin.SetBool(TagManager.JUMPBETA, false);
+        }
+        else
+        {
+            amin.SetBool(TagManager.JUMPBETA, true);
+        }

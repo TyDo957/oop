@@ -1,0 +1,91 @@
+ private float scaleValue;
+    public float moveSpeed = 5f;  // tốc độ di chuyển
+    private bool moveleft;             // đã di chuyển
+
+    private Vector3 temPos;
+    private Vector3 temScale;
+
+    private SpriteRenderer sprites;
+    private Transform groundCheckPos;
+    public LayerMask groundLayer;
+    public RaycastHit2D groudHit;
+
+    [SerializeField] // enemy di chuyển trong giới hạn cho phép
+    private float maxWalkDistanceValue = 10f;
+    private float minWalk;
+    private float maxWalk;
+    private void Awake()
+    {
+        sprites = GetComponent<SpriteRenderer>();
+        groundCheckPos = transform.GetChild(0);
+    }
+    // Start is called before the first frame update
+    void Start()
+    {
+       this.CheckStar();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+    //    this.CheckGround();    // tắt tk này mới giới hạn di chuyển
+    //    this.HandleGroundCheck();  // tắt tk này mới giới hạn di chuyển
+        this.HandleWalking(); 
+    }
+    private void CheckGround()
+    {
+        groudHit = Physics2D.Raycast(groundCheckPos.position, Vector2.down, 0.1f, groundLayer);
+        if (!groudHit)
+            moveleft = !moveleft;
+    }
+    private void HandleGroundCheck()
+    {
+        temPos = transform.position;
+        temScale = transform.localScale;
+
+      //  sprites.flipX = moveleft;
+        if (moveleft)
+        {
+            temPos.x -= moveSpeed * Time.deltaTime;
+            temScale.x = -scaleValue;
+        }
+        else
+        {
+            temPos.x += moveSpeed * Time.deltaTime;
+            temScale.x = scaleValue;
+        }
+        transform.position = temPos;
+        transform.localScale = temScale;
+    }
+    private void CheckStar()
+    {
+        moveleft = Random.Range(0 ,2) > 0 ? true : false;
+        scaleValue = transform.localScale.x;
+
+        minWalk = transform.position.x - maxWalkDistanceValue;
+        maxWalk = transform.position.x + maxWalkDistanceValue;
+    }
+
+    private void HandleWalking()  // enemy di chuyển trong giới hạn cho phép
+    {
+        temPos = transform.position;
+        if(moveleft)
+        {
+            temPos.x -= moveSpeed * Time.deltaTime;
+        }
+        else
+        {
+            temPos.x += moveSpeed * moveSpeed * Time.deltaTime;
+        }
+        transform.position = temPos;
+
+        sprites.flipX = moveleft;
+        if(temPos.x < minWalk)
+        {
+            moveleft = false;
+        }
+        if(temPos.x > maxWalk)
+        {
+            moveleft = true;
+        }
+    }
